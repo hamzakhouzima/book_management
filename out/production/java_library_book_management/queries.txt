@@ -1,0 +1,42 @@
+-- Create the Authors table
+CREATE TABLE Authors (
+    id INT PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+-- Create the Book table
+CREATE TABLE Book (
+    isbn VARCHAR(255) PRIMARY KEY,
+    Title VARCHAR(255),
+    author_id INT,
+    status VARCHAR(255),
+    quantity INT,
+    FOREIGN KEY (author_id) REFERENCES Authors(id)
+);
+
+-- Create the BookInstance table
+CREATE TABLE BookInstance (
+    Book_id INT PRIMARY KEY,
+    isbn VARCHAR(255),
+    status VARCHAR(255),
+    FOREIGN KEY (isbn) REFERENCES Book(isbn)
+);
+
+-- Create the BorrowedBooks table
+CREATE TABLE BorrowedBooks (
+    id INT PRIMARY KEY,
+    Borrowed_book_id INT,
+    borrower_member_number INT,
+    borrow_date DATE,
+    return_date DATE,
+    limit_date DATE,
+    FOREIGN KEY (Borrowed_book_id) REFERENCES BookInstance(Book_id),
+    FOREIGN KEY (borrower_member_number) REFERENCES Borrowers(Member_number)
+);
+
+-- Create the Borrowers table
+CREATE TABLE Borrowers (
+    Member_number INT PRIMARY KEY,
+    name VARCHAR(255),
+    contact_info VARCHAR(255)
+);
