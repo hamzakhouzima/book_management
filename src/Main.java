@@ -39,8 +39,6 @@ public class Main {
         // Create a Book object and set its attributes based on user input
         // Call the add method of the Book object to add it to the database
 
-
-
         System.out.println("enter isbn :");
         String isbn = scanner.nextLine();
 
@@ -56,21 +54,16 @@ public class Main {
         System.out.println("enter quantity");
         int quantity = scanner.nextInt();
 
-        Author author = new Author(author_name);
-        Book book = new Book(isbn,title,status,quantity,author);
+        int author_id = Book.getAuthorIdByName(author_name);
+
+        Author author = new Author(author_name,author_id);
+        Book book = new Book(isbn,title,status,quantity,author, author_id);
         //BookInstance copy = new BookInstance();
 
-     /*   book.setIsbn(isbn);
-        copy.setInstanceQuantity(quantity);
-        book.setStatus(status);
-        book.setTitle(title);
-        copy.setInstanceStatus(status);*/
+
 
 
         book.add(quantity);
-
-
-
 
     }
 }
