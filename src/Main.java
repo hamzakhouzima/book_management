@@ -2,14 +2,14 @@ import java.util.Scanner;
 import java.sql.*;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         Scanner scanner = new Scanner(System.in);
         int choice;
 
         do {
             System.out.println("Menu:");
             System.out.println("1. Add a Book");
-            System.out.println("2. Exit");
+            System.out.println("2. Delete book by ISBN");
             System.out.println("Enter your choice: ");
             choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
@@ -24,7 +24,17 @@ public class Main {
                     }
                     break;
                 case 2:
+                    deleteBookl(scanner);
+                    System.out.println("Book has been deleted ");
+                    break;
+                case 3:
+                    break;
+
+                case 4:
+
                     System.out.println("Exiting the program.");
+
+
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -60,10 +70,15 @@ public class Main {
         Book book = new Book(isbn,title,status,quantity,author, author_id);
         //BookInstance copy = new BookInstance();
 
-
-
-
         book.add(quantity);
 
     }
+public static void deleteBookl(Scanner scanner) throws SQLException {
+    System.out.println("enter isbn :");
+    String isbn = scanner.nextLine();
+
+    Book.deleteBook(isbn);
+}
+
+
 }

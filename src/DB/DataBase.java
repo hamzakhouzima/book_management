@@ -4,7 +4,7 @@ import java.sql.*;
 
 public class DataBase {
     public static Connection dbSetup() {
-        String url = "jdbc:mysql://127.0.0.1:3306/books_library_3";
+        String url = "jdbc:mysql://127.0.0.1:3306/book_library_4";
         String username = "root";
         String password = "";
 

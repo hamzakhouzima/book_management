@@ -58,69 +58,15 @@ public class Book {
   }
 
 
-
-
-
-    //operations methods
-   /* public void add(int numberOfInstance) throws SQLException{
-//"add a book" logic
-        String book_query = "INSERT INTO book (isbn,Title,author_id,status,quantity) VALUES (?,?,?,?,?)";
-        String author_query = "INSERT INTO authors (name) VALUES (?)";
-        //String author_id = "SELECT * FROM authors WHERE name = ? ";
-        String instances_query = "INSERT INTO bookinstance (isbn,status) VALUES (?,?)";
-//this method is to add a book in book table
-// author in author table
-// and also the books instances or copies in the bookinstance table
-        try (Connection connection = DataBase.dbSetup()){
-
-            PreparedStatement preparedStatement = connection.prepareStatement(book_query); //this is to add the book informations
-           // PreparedStatement catch_author_id = connection.prepareStatement(author_id);
-            PreparedStatement preparedStatement2 = connection.prepareStatement(author_query);
-            PreparedStatement preparedStatement3 = connection.prepareStatement(instances_query);
-
-            preparedStatement.setString(1, this.isbn);
-            preparedStatement.setString(2, this.title);
-            preparedStatement.setInt(3, this.author_id);
-            preparedStatement.setString(4, this.status);
-            preparedStatement.setInt(5, this.quantity);
-
-            //catch_author_id.setInt(1, this.quantity);
-
-
-
-
-            preparedStatement2.setString(1 , this.author_name.getName());
-
-            preparedStatement2.executeUpdate();
-
-            preparedStatement.executeUpdate();
-
-            for(int i=0 ;i<=numberOfInstance ;i++){
-                preparedStatement3.setString(1, this.isbn);
-                //this is the status of book instances (the books copies available , not available , lost)
-                preparedStatement3.setString(2, this.status);
-                preparedStatement3.executeUpdate();
-            }
-
-            }catch(SQLException e){
-
-
-                System.err.println("Error adding the book: " + e.getMessage());
-
-
-        }
-
-    }*/
     public void add(int numberOfInstance) throws SQLException {
         String book_query = "INSERT INTO book (isbn, title, author_id, status, quantity) VALUES (?, ?, ?, ?, ?)";
         String author_query = "INSERT INTO authors (name) VALUES (?)";
         String instances_query = "INSERT INTO bookinstance (isbn, status) VALUES (?, ?)";
 
-        try (Connection connection = DataBase.dbSetup()) {
+            try (Connection connection = DataBase.dbSetup()) {
             int authorId = getAuthorIdByName( this.author_name.getName());
 
             if (authorId == -1) {
-                // If the author doesn't exist, insert them into the authors table
                 PreparedStatement authorStatement = connection.prepareStatement(author_query, Statement.RETURN_GENERATED_KEYS);
                 authorStatement.setString(1, this.author_name.getName());
                 authorStatement.executeUpdate();
@@ -177,14 +123,61 @@ public class Book {
 
 
 
-    public static void displayBookList(){
-        //display the books
+    public static void displayBookList() throws SQLException {
+        String display_books = "SELECT book.*, authors.name AS author_name FROM book INNER JOIN authors ON book.author_id = authors.id;\n";
+        try (
+                Connection connection = DataBase.dbSetup();
+                PreparedStatement displayStatement = connection.prepareStatement(display_books) ) {
+
+            ResultSet result = displayStatement.executeQuery();
+            while(result.next()){
+                String isbn = result.getString("isbn");
+                String title = result.getString("title");
+                String status = result.getString("status");
+                int quantity = result.getInt("quantity");
+                String authorName = result.getString("author_name");
+
+                System.out.println("ISBN: " + isbn);
+                System.out.println("Title: " + title);
+                System.out.println("Status: " + status);
+                System.out.println("Quantity: " + quantity);
+                System.out.println("Author Name" + authorName);
+
+                System.out.println("--------------------------");
+            }
+
+
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+
+
+
+
     }
     public static void searchBook(){
         //search books
     }
-    public static void deleteBook(){
-        //delete books
+    public static void deleteBook(String isbn ) throws SQLException{
+        String DeleteQ = "DELETE FROM book WHERE isbn = (?)";
+        try(Connection connection = DataBase.dbSetup();
+            PreparedStatement preparedStatement = connection.prepareStatement(DeleteQ))
+        {
+         preparedStatement.setString(1,isbn);
+         int rowsDeleted = preparedStatement.executeUpdate();
+         if (rowsDeleted >0){
+             System.out.println("Book "+isbn+"has been deleted");
+        }
+         else{
+             System.out.println("Operation failed ");
+         }
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+
+
     }
 
     public static void updateBook(){
