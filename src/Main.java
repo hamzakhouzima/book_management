@@ -11,6 +11,8 @@ public class Main {
             System.out.println("1. Add a Book");
             System.out.println("2. Delete book by ISBN");
             System.out.println("3. Update book by ISBN");
+            System.out.println("4. Search book ");
+            System.out.println("5. Show Books");
 
             System.out.println("Enter your choice: ");
             choice = scanner.nextInt();
@@ -35,9 +37,14 @@ public class Main {
                     break;
 
                 case 4:
+                    ShowBooks();
 
+                    break;
+                case 5:
+                    searchBook(scanner);
+                    break;
+                case 6:
                     System.out.println("Exiting the program.");
-
 
                     break;
                 default:
@@ -112,6 +119,24 @@ public static void updateBook(Scanner scanner)  throws SQLException{
     //BookInstance copy = new BookInstance();
 
     book.updateBook(isbn , title , author_name , status  ,quantity);
+
+
+}
+
+public static void ShowBooks() throws SQLException{
+        System.out.println("------------------------------------------------------------");
+            Book.displayBookList();
+        System.out.println("------------------------------------------------------------");
+
+}
+
+public static void searchBook(Scanner scanner) throws SQLException{
+
+    System.out.println("Search here (title || author) :");
+    String title = scanner.nextLine();
+    Book.searchBook(title);
+
+
 
 
 }

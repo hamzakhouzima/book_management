@@ -144,7 +144,7 @@ public class Book {
                 System.out.println("Title: " + title);
                 System.out.println("Status: " + status);
                 System.out.println("Quantity: " + quantity);
-                System.out.println("Author Name" + authorName);
+                System.out.println("Author Name: " + authorName);
 
                 System.out.println("--------------------------");
             }
@@ -159,11 +159,33 @@ public class Book {
 
 
     }
-    public static void searchBook(){
+    public static void searchBook(String searchQ) throws SQLException{
         //search books
+        String searchByisbn = "SELECT * FROM book WHERE title = (?) ";
+        try(Connection connection = DataBase.dbSetup();
+            PreparedStatement preparedStatement = connection.prepareStatement(searchByisbn)) {
+            preparedStatement.setString(1,searchQ);
+            ResultSet result = preparedStatement.executeQuery();
+            while (result.next()) {
+                // Retrieve and print the book information here
+                String isbn = result.getString("isbn");
+                String title = result.getString("title");
+                String status = result.getString("status");
+                int quantity = result.getInt("quantity");
+
+                System.out.println("ISBN: " + isbn);
+                System.out.println("Title: " + title);
+                System.out.println("Status: " + status);
+                System.out.println("Quantity: " + quantity);
+                System.out.println("--------------------------");
+            }
+        }catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 
     public static void deleteBook(String isbn ) throws SQLException{
+        String check = "SELECT * FROM book WHERE isbn = (?)";
         String DeleteQ = "DELETE FROM book WHERE isbn = (?)";
         try(Connection connection = DataBase.dbSetup();
             PreparedStatement preparedStatement = connection.prepareStatement(DeleteQ))
@@ -217,11 +239,9 @@ public class Book {
                 authorStatement.executeUpdate();
             }
 
-            // Commit the transaction if both updates are successful
             connection.commit();
             System.out.println("Book with ISBN " + isbn + " and its author updated successfully.");
         } catch (SQLException e) {
-            // Handle any SQL exceptions and rollback the transaction
             System.err.println("Error: " + e.getMessage());
 
           /*  try {
