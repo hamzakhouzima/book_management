@@ -1,10 +1,8 @@
--- Create the Authors table
 CREATE TABLE Authors (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255)
 );
 
--- Create the Book table
 CREATE TABLE Book (
     isbn VARCHAR(255) PRIMARY KEY,
     Title VARCHAR(255),
@@ -14,15 +12,20 @@ CREATE TABLE Book (
     FOREIGN KEY (author_id) REFERENCES Authors(id)
 );
 
--- Create the BookInstance table
-CREATE TABLE BookInstance (
-    Book_id INT PRIMARY KEY,
+CREATE TABLE bookinstance (
+    instance_id INT AUTO_INCREMENT PRIMARY KEY,
     isbn VARCHAR(255),
     status VARCHAR(255),
-    FOREIGN KEY (isbn) REFERENCES Book(isbn)
+    FOREIGN KEY (isbn) REFERENCES book(isbn) ON DELETE CASCADE
 );
 
--- Create the BorrowedBooks table
+CREATE TABLE Borrowers (
+    Member_number INT PRIMARY KEY,
+    name VARCHAR(255),
+    contact_info VARCHAR(255)
+);
+
+
 CREATE TABLE BorrowedBooks (
     id INT PRIMARY KEY,
     Borrowed_book_id INT,
@@ -32,11 +35,4 @@ CREATE TABLE BorrowedBooks (
     limit_date DATE,
     FOREIGN KEY (Borrowed_book_id) REFERENCES BookInstance(Book_id),
     FOREIGN KEY (borrower_member_number) REFERENCES Borrowers(Member_number)
-);
-
--- Create the Borrowers table
-CREATE TABLE Borrowers (
-    Member_number INT PRIMARY KEY,
-    name VARCHAR(255),
-    contact_info VARCHAR(255)
 );

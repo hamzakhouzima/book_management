@@ -1,5 +1,8 @@
 import javax.print.DocFlavor;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import DB.DataBase;
 
 public class Book {
@@ -159,6 +162,7 @@ public class Book {
     public static void searchBook(){
         //search books
     }
+
     public static void deleteBook(String isbn ) throws SQLException{
         String DeleteQ = "DELETE FROM book WHERE isbn = (?)";
         try(Connection connection = DataBase.dbSetup();
@@ -180,9 +184,55 @@ public class Book {
 
     }
 
-    public static void updateBook(){
-        //update books
+    public void updateBook(String isbn, String title, String authorName, String status, int quantity) {
+        try (Connection connection = DataBase.dbSetup()) {
+            // Start a transaction
+            connection.setAutoCommit(false);
+
+            // Update the book table
+            String updateBookQuery = "UPDATE book SET title = ?, status = ?, quantity = ? WHERE isbn = ?";
+            try (PreparedStatement bookStatement = connection.prepareStatement(updateBookQuery)) {
+                bookStatement.setString(1, title);
+                bookStatement.setString(2, status);
+                bookStatement.setInt(3, quantity);
+                bookStatement.setString(4, isbn);
+
+                int rowsUpdated = bookStatement.executeUpdate();
+
+                if (rowsUpdated <= 0) {
+                    // If no rows were updated, rollback the transaction and return
+                    connection.rollback();
+                    System.out.println("No book with ISBN " + isbn + " found for update.");
+                    return;
+                }
+            }
+
+            // Update the author table
+            String updateAuthorQuery = "UPDATE authors SET name = ? WHERE id = " +
+                    "(SELECT author_id FROM book WHERE isbn = ?)";
+            try (PreparedStatement authorStatement = connection.prepareStatement(updateAuthorQuery)) {
+                authorStatement.setString(1, authorName);
+                authorStatement.setString(2, isbn);
+
+                authorStatement.executeUpdate();
+            }
+
+            // Commit the transaction if both updates are successful
+            connection.commit();
+            System.out.println("Book with ISBN " + isbn + " and its author updated successfully.");
+        } catch (SQLException e) {
+            // Handle any SQL exceptions and rollback the transaction
+            System.err.println("Error: " + e.getMessage());
+
+          /*  try {
+                connection.rollback();
+            } catch (SQLException rollbackException) {
+                System.err.println("Rollback error: " + rollbackException.getMessage());
+            }*/
+        }
     }
+
+
     public static void showBorrowed(){
         //show borrowed books
     }

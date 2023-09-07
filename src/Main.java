@@ -10,6 +10,8 @@ public class Main {
             System.out.println("Menu:");
             System.out.println("1. Add a Book");
             System.out.println("2. Delete book by ISBN");
+            System.out.println("3. Update book by ISBN");
+
             System.out.println("Enter your choice: ");
             choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline
@@ -28,6 +30,8 @@ public class Main {
                     System.out.println("Book has been deleted ");
                     break;
                 case 3:
+                    System.out.println("Book has been updated");
+                    updateBook(scanner);
                     break;
 
                 case 4:
@@ -78,6 +82,38 @@ public static void deleteBookl(Scanner scanner) throws SQLException {
     String isbn = scanner.nextLine();
 
     Book.deleteBook(isbn);
+}
+
+public static void updateBook(Scanner scanner)  throws SQLException{
+    System.out.println("enter the book's isbn you wanna update :");
+    String isbn = scanner.nextLine();
+
+
+
+/*    System.out.println("enter isbn :");
+    String isbn = scanner.nextLine();*/
+
+    System.out.println("enter title :");
+    String title = scanner.nextLine();
+
+    System.out.println("enter author name :");
+    String author_name = scanner.nextLine();
+
+    System.out.println("enter status");
+    String status = scanner.nextLine();
+
+    System.out.println("enter quantity");
+    int quantity = scanner.nextInt();
+
+    int author_id = Book.getAuthorIdByName(author_name);
+
+     Author author = new Author(author_name,author_id);
+    Book book = new Book(isbn,title,status,quantity,author, author_id);
+    //BookInstance copy = new BookInstance();
+
+    book.updateBook(isbn , title , author_name , status  ,quantity);
+
+
 }
 
 
