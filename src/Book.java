@@ -161,9 +161,11 @@ public class Book {
     }
     public static void searchBook(String searchQ) throws SQLException{
         //search books
-        String searchByisbn = "SELECT * FROM book WHERE title = (?) ";
+        String searchBytitle = "SELECT * FROM book WHERE title = (?) ";
+
+
         try(Connection connection = DataBase.dbSetup();
-            PreparedStatement preparedStatement = connection.prepareStatement(searchByisbn)) {
+            PreparedStatement preparedStatement = connection.prepareStatement(searchBytitle)) {
             preparedStatement.setString(1,searchQ);
             ResultSet result = preparedStatement.executeQuery();
             while (result.next()) {
@@ -183,7 +185,36 @@ public class Book {
             System.err.println("Error: " + e.getMessage());
         }
     }
+    public static void searchBookByAuthor(String searchQ)throws SQLException{
+        String searchByAuthor_id = "SELECT id FROM authors WHERE name= (?) ";
+        String searchByAuthor = "SELECT * FROM book WHERE author_id = (?)"+ searchByAuthor_id;
+        try(Connection connection = DataBase.dbSetup();
+            PreparedStatement preparedStatement = connection.prepareStatement(searchByAuthor))
 
+        {
+            preparedStatement.setString(1,searchQ);
+
+
+            ResultSet result = preparedStatement.executeQuery();
+            while (result.next()) {
+                // Retrieve and print the book information here
+                String isbn = result.getString("isbn");
+                String title = result.getString("title");
+                String status = result.getString("status");
+                int quantity = result.getInt("quantity");
+
+                System.out.println("ISBN: " + isbn);
+                System.out.println("Title: " + title);
+                System.out.println("Status: " + status);
+                System.out.println("Quantity: " + quantity);
+                System.out.println("--------------------------");
+            }
+        }catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+    }
+//searchByAuthor isn't complete yet
     public static void deleteBook(String isbn ) throws SQLException{
         String check = "SELECT * FROM book WHERE isbn = (?)";
         String DeleteQ = "DELETE FROM book WHERE isbn = (?)";

@@ -11,8 +11,8 @@ public class Main {
             System.out.println("1. Add a Book");
             System.out.println("2. Delete book by ISBN");
             System.out.println("3. Update book by ISBN");
-            System.out.println("4. Search book ");
-            System.out.println("5. Show Books");
+            System.out.println("4. Show Books  ");
+            System.out.println("5. Search book");
 
             System.out.println("Enter your choice: ");
             choice = scanner.nextInt();
@@ -135,9 +135,6 @@ public static void searchBook(Scanner scanner) throws SQLException{
     System.out.println("Search here (title || author) :");
     String title = scanner.nextLine();
     Book.searchBook(title);
-
-
-
 
 }
 
