@@ -36,3 +36,59 @@ CREATE TABLE BorrowedBooks (
     FOREIGN KEY (Borrowed_book_id) REFERENCES BookInstance(Book_id),
     FOREIGN KEY (borrower_member_number) REFERENCES Borrowers(Member_number)
 );
+======================================================================================================================================================
+FUNCTION I MAY NEED :
+    public void BorrowBook(String isbn, int borrower_id, int borrower_member_number, Date borrow_date, Date return_date, Date limit_date) throws SQLException{
+        try (Connection connection = DataBase.dbSetup()) {
+            // Step 1: Fetch book information by ISBN
+            String fetchBookQuery = "SELECT * FROM book WHERE isbn = ?";
+            PreparedStatement bookStatement = connection.prepareStatement(fetchBookQuery);
+            bookStatement.setString(1, isbn);
+            ResultSet bookResult = bookStatement.executeQuery();
+
+            if (bookResult.next()) {
+                String bookTitle = bookResult.getString("title");
+
+                // Step 2: Fetch available instances of the book
+                String fetchInstancesQuery = "SELECT * FROM bookinstance WHERE isbn = ? AND status = 'available'";
+                PreparedStatement instancesStatement = connection.prepareStatement(fetchInstancesQuery);
+                instancesStatement.setString(1, isbn);
+                ResultSet instancesResult = instancesStatement.executeQuery();
+
+                if (instancesResult.next()) {
+                    int instanceId = instancesResult.getInt("instance_id");
+
+                    // Step 3: Insert borrower information into the borrower table
+                    String insertBorrowerQuery = "INSERT INTO borrower (borrower_id, borrower_member_number, borrow_date, return_date, limit_date) VALUES (?, ?, ?, ?, ?)";
+                    PreparedStatement borrowerStatement = connection.prepareStatement(insertBorrowerQuery);
+                    borrowerStatement.setInt(1, borrower_id);
+                    borrowerStatement.setInt(2, borrower_member_number);
+                    borrowerStatement.setDate(3, new java.sql.Date(borrow_date.getTime()));
+                    borrowerStatement.setDate(4, new java.sql.Date(return_date.getTime()));
+                    borrowerStatement.setDate(5, new java.sql.Date(limit_date.getTime()));
+                    borrowerStatement.executeUpdate();
+
+                    // Step 4: Update the book instance to mark it as borrowed
+                    String updateInstanceQuery = "UPDATE bookinstance SET status = 'borrowed' WHERE instance_id = ?";
+                    PreparedStatement updateInstanceStatement = connection.prepareStatement(updateInstanceQuery);
+                    updateInstanceStatement.setInt(1, instanceId);
+                    updateInstanceStatement.executeUpdate();
+
+                    // Optionally, you can also update the borrower's borrowed_book field
+                    // String updateBorrowerQuery = "UPDATE borrower SET borrowed_book = ? WHERE borrower_id = ?";
+                    // PreparedStatement updateBorrowerStatement = connection.prepareStatement(updateBorrowerQuery);
+                    // updateBorrowerStatement.setInt(1, instanceId);
+                    // updateBorrowerStatement.setInt(2, borrower_id);
+                    // updateBorrowerStatement.executeUpdate();
+
+                    System.out.println("Book '" + bookTitle + "' with ISBN '" + isbn + "' has been borrowed successfully.");
+                } else {
+                    System.out.println("No available instances of the book with ISBN '" + isbn + "' are found.");
+                }
+            } else {
+                System.out.println("Book with ISBN '" + isbn + "' not found.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }

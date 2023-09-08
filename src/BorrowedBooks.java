@@ -1,4 +1,8 @@
+import DB.DataBase;
+
 import java.util.Date;
+import java.sql.*;
+
 
 public class BorrowedBooks {
     private BookInstance book_instance;
@@ -37,5 +41,15 @@ public class BorrowedBooks {
     public void availableBooks(){
 
     }
+
+
+    public void borrowBook(){
+
+    }
+
+
+
+
+
 
 }

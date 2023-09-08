@@ -63,7 +63,7 @@ public class Book {
 
     public void add(int numberOfInstance) throws SQLException {
         String book_query = "INSERT INTO book (isbn, title, author_id, status, quantity) VALUES (?, ?, ?, ?, ?)";
-        String author_query = "INSERT INTO authors (name) VALUES (?)";
+        String author_query = "INSERT INTO authors (name) SELECT ? WHERE NOT EXISTS (SELECT 1 FROM authors WHERE name = ?)";
         String instances_query = "INSERT INTO bookinstance (isbn, status) VALUES (?, ?)";
 
             try (Connection connection = DataBase.dbSetup()) {
@@ -72,6 +72,7 @@ public class Book {
             if (authorId == -1) {
                 PreparedStatement authorStatement = connection.prepareStatement(author_query, Statement.RETURN_GENERATED_KEYS);
                 authorStatement.setString(1, this.author_name.getName());
+                authorStatement.setString(2, this.author_name.getName());
                 authorStatement.executeUpdate();
 
                 ResultSet authorKeys = authorStatement.getGeneratedKeys();
@@ -127,7 +128,7 @@ public class Book {
 
 
     public static void displayBookList() throws SQLException {
-        String display_books = "SELECT book.*, authors.name AS author_name FROM book INNER JOIN authors ON book.author_id = authors.id;\n";
+        String display_books = "SELECT book.*, authors.name AS author_name FROM book INNER JOIN authors ON book.author_id = authors.id ;\n";
         try (
                 Connection connection = DataBase.dbSetup();
                 PreparedStatement displayStatement = connection.prepareStatement(display_books) ) {
@@ -159,6 +160,10 @@ public class Book {
 
 
     }
+
+
+
+    //this method is to search for a book  by the book title
     public static void searchBook(String searchQ) throws SQLException{
         //search books
         String searchBytitle = "SELECT * FROM book WHERE title = (?) ";
@@ -169,7 +174,6 @@ public class Book {
             preparedStatement.setString(1,searchQ);
             ResultSet result = preparedStatement.executeQuery();
             while (result.next()) {
-                // Retrieve and print the book information here
                 String isbn = result.getString("isbn");
                 String title = result.getString("title");
                 String status = result.getString("status");
@@ -185,36 +189,45 @@ public class Book {
             System.err.println("Error: " + e.getMessage());
         }
     }
-    public static void searchBookByAuthor(String searchQ)throws SQLException{
-        String searchByAuthor_id = "SELECT id FROM authors WHERE name= (?) ";
-        String searchByAuthor = "SELECT * FROM book WHERE author_id = (?)"+ searchByAuthor_id;
-        try(Connection connection = DataBase.dbSetup();
-            PreparedStatement preparedStatement = connection.prepareStatement(searchByAuthor))
+    //this method is to search for a book by author name
+    public static void searchBookByAuthor(String searchQ) throws SQLException {
+        String searchByAuthorId = "SELECT id FROM authors WHERE name = ?";
+        String searchByAuthor = "SELECT * FROM book WHERE author_id = ?";
 
-        {
-            preparedStatement.setString(1,searchQ);
+        try (Connection connection = DataBase.dbSetup();
+             PreparedStatement authorIdStatement = connection.prepareStatement(searchByAuthorId);
+             PreparedStatement bookStatement = connection.prepareStatement(searchByAuthor)) {
 
+            authorIdStatement.setString(1, searchQ);
+            ResultSet authorIdResult = authorIdStatement.executeQuery();
 
-            ResultSet result = preparedStatement.executeQuery();
-            while (result.next()) {
-                // Retrieve and print the book information here
-                String isbn = result.getString("isbn");
-                String title = result.getString("title");
-                String status = result.getString("status");
-                int quantity = result.getInt("quantity");
+            if (authorIdResult.next()) {
+                int authorId = authorIdResult.getInt("id");
 
-                System.out.println("ISBN: " + isbn);
-                System.out.println("Title: " + title);
-                System.out.println("Status: " + status);
-                System.out.println("Quantity: " + quantity);
-                System.out.println("--------------------------");
+                bookStatement.setInt(1, authorId);
+                ResultSet bookResult = bookStatement.executeQuery();
+
+                while (bookResult.next()) {
+                    String isbn = bookResult.getString("isbn");
+                    String title = bookResult.getString("title");
+                    String status = bookResult.getString("status");
+                    int quantity = bookResult.getInt("quantity");
+
+                    System.out.println("ISBN: " + isbn);
+                    System.out.println("Title: " + title);
+                    System.out.println("Status: " + status);
+                    System.out.println("Quantity: " + quantity);
+                    System.out.println("--------------------------");
+                }
+            } else {
+                System.out.println("Author not found.");
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
-
     }
-//searchByAuthor isn't complete yet
+
+    //searchByAuthor isn't complete yet
     public static void deleteBook(String isbn ) throws SQLException{
         String check = "SELECT * FROM book WHERE isbn = (?)";
         String DeleteQ = "DELETE FROM book WHERE isbn = (?)";
@@ -237,7 +250,7 @@ public class Book {
 
     }
 
-    public void updateBook(String isbn, String title, String authorName, String status, int quantity) {
+    public static void updateBook(String isbn, String title, String authorName, String status, int quantity) {
         try (Connection connection = DataBase.dbSetup()) {
             // Start a transaction
             connection.setAutoCommit(false);
@@ -284,11 +297,13 @@ public class Book {
     }
 
 
-    public static void showBorrowed(){
-        //show borrowed books
+
+
+
+
     }
 
 
 
 
-}
+

@@ -1,10 +1,21 @@
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 import java.sql.*;
+ import java.util.Random;
 
 public class Main {
+
+    public static int generateRandomInteger(int min, int max) {
+        Random random = new Random();
+        return random.nextInt(max - min + 1) + min;
+    }
+
     public static void main(String[] args) throws SQLException {
         Scanner scanner = new Scanner(System.in);
         int choice;
+
 
         do {
             System.out.println("Menu:");
@@ -13,6 +24,9 @@ public class Main {
             System.out.println("3. Update book by ISBN");
             System.out.println("4. Show Books  ");
             System.out.println("5. Search book");
+            System.out.println("6. Borrow a book");
+
+            System.out.println("7. Exit");
 
             System.out.println("Enter your choice: ");
             choice = scanner.nextInt();
@@ -40,13 +54,17 @@ public class Main {
                     ShowBooks();
 
                     break;
+
                 case 5:
+
                     searchBook(scanner);
                     break;
                 case 6:
                     System.out.println("Exiting the program.");
 
-                    break;
+                case 7:
+                    borrow(scanner);
+
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
@@ -130,13 +148,82 @@ public static void ShowBooks() throws SQLException{
 
 }
 
+
 public static void searchBook(Scanner scanner) throws SQLException{
 
-    System.out.println("Search here (title || author) :");
-    String title = scanner.nextLine();
-    Book.searchBook(title);
+    int choice;
+
+    do {
+        System.out.println("1 - Search by book name:");
+        System.out.println("2 - Search by author name:");
+        System.out.println("3 - Exit:");
+        System.out.println("Enter your choice:");
+
+        choice = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        switch (choice) {
+            case 1:
+                System.out.println("Enter the Book title:");
+                String title = scanner.nextLine();
+                Book.searchBook(title);
+                break;
+            case 2:
+                System.out.println("Enter the Book Author:");
+                String author = scanner.nextLine();
+                Book.searchBookByAuthor(author);
+                break;
+            case 3:
+                System.out.println("Exiting...");
+                break; // Exit the loop when the user chooses to exit
+            default:
+                System.out.println("Invalid choice. Please try again.");
+        }
+    } while (choice != 3);
+
 
 }
 
+    public static void borrow(Scanner scanner) throws SQLException {
 
+
+
+        int member_number = generateRandomInteger(10, 100000);
+
+
+        System.out.println("Enter the book's ISBN to borrow:");
+        String isbn = scanner.nextLine();
+
+        System.out.println("Enter the borrower's name (full name):");
+        String name = scanner.nextLine();
+
+        System.out.println("Enter the borrower's contact information:");
+        String contact = scanner.nextLine();
+
+        Date borrowDate = null;
+        Date limitDate = null;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setLenient(false); // Ensure strict date parsing
+
+        try {
+            System.out.print("Enter borrow date (yyyy-MM-dd): ");
+            String borrowDateStr = scanner.nextLine();
+            borrowDate = sdf.parse(borrowDateStr);
+
+            System.out.print("Enter limit date (yyyy-MM-dd): ");
+            String limitDateStr = scanner.nextLine();
+            limitDate = sdf.parse(limitDateStr);
+        } catch (ParseException e) {
+            System.err.println("Invalid date format. Please enter dates in yyyy-MM-dd format.");
+            return; // Exit the method if date parsing fails
+        }
+
+        try {
+            Borrowers.borrowBook(isbn, name, contact, borrowDate, limitDate , member_number);
+            System.out.println("Book borrowed successfully!");
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+        }
+    }
 }
