@@ -64,7 +64,8 @@ public class Main {
 
                 case 7:
                     borrow(scanner);
-
+                case 8:
+                    returnBook(scanner);
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
@@ -227,5 +228,42 @@ public static void searchBook(Scanner scanner) throws SQLException{
         }
     }
 
+    public static void returnBook(Scanner scanner)throws SQLException{
+// need modifications //
+        System.out.println("Enter the book's ISBN to borrow:");
+        String isbn = scanner.nextLine();
+
+        System.out.println("Enter the borrower's name (full name):");
+        String name = scanner.nextLine();
+
+        System.out.println("Enter the borrower's contact information:");
+        String contact = scanner.nextLine();
+
+        Date borrowDate = null;
+        Date limitDate = null;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setLenient(false); // Ensure strict date parsing
+
+        try {
+            System.out.print("Enter borrow date (yyyy-MM-dd): ");
+            String borrowDateStr = scanner.nextLine();
+            borrowDate = sdf.parse(borrowDateStr);
+
+            System.out.print("Enter limit date (yyyy-MM-dd): ");
+            String limitDateStr = scanner.nextLine();
+            limitDate = sdf.parse(limitDateStr);
+        } catch (ParseException e) {
+            System.err.println("Invalid date format. Please enter dates in yyyy-MM-dd format.");
+            return; // Exit the method if date parsing fails
+        }
+
+        try {
+            System.out.println("Book borrowed successfully!");
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+        }
+
+    }
 
 }
