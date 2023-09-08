@@ -1,4 +1,6 @@
 import DB.DataBase;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import java.sql.Connection;
@@ -23,9 +25,7 @@ public class Borrowers {
     }
 
 
-    public static void  returnBook(){
-//return book method
-    }
+
     public static void borrowBook(String isbn,  String name, String contact, Date borrowDate,  Date limitDate , int Member_number) throws SQLException {
         int borrowerID = 0;
         try (Connection connection = DataBase.dbSetup()) {
@@ -108,6 +108,30 @@ public class Borrowers {
         }
     }
 
+    public static void returnBook(int memberNumber, Date returnDate) {
+        String returnQ = "UPDATE borrowers SET return_date = ? WHERE Member_number = ?";
+        String returned_book_id = "SELECT Borrowed_book_id FROM borrowers WHERE borrower_member_number = (?) ";
 
+        try (Connection connection = DataBase.dbSetup();
+             PreparedStatement preparedStatement = connection.prepareStatement(returnQ)) {
 
+            // Format the return date as needed (e.g., "yyyy-MM-dd")
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String returnDateStr = sdf.format(returnDate);
+
+            preparedStatement.setString(1, returnDateStr); // Set the return date
+            preparedStatement.setInt(2, memberNumber); // Set the member number
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                System.out.println("Return date updated successfully.");
+            } else {
+                System.out.println("No records updated. Member number not found.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error updating return date: " + e.getMessage());
+        }
+    }
 }
