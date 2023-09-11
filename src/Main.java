@@ -26,9 +26,11 @@ public class Main {
             System.out.println("5. Search book");
             System.out.println("6. Borrow a book");
             System.out.println("7. Return a book");
+            System.out.println("8: Repports");
 
 
-            System.out.println("8. Exit");
+
+            System.out.println("9. Exit");
 
             System.out.println("Enter your choice: ");
             choice = scanner.nextInt();
@@ -63,6 +65,7 @@ public class Main {
                 case 7:
                     returnBook(scanner);
                 case 8:
+                    Borrowers.statistics();
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }

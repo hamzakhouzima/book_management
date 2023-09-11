@@ -170,6 +170,26 @@ public class Borrowers {
     }
 
 
+    public static void statistics() throws SQLException{
+        String statisticsQuery = "SELECT isbn, status, COUNT(*) AS quantity FROM bookinstance GROUP BY isbn, status";
+
+        try (Connection connection = DataBase.dbSetup();
+             PreparedStatement preparedStatement = connection.prepareStatement(statisticsQuery);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                String isbn = resultSet.getString("isbn");
+                String status = resultSet.getString("status");
+                int quantity = resultSet.getInt("quantity");
+
+                // Output ISBN, Status, and Quantity
+                System.out.println("ISBN: " + isbn + ", Status: " + status + ", Quantity: " + quantity);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error executing statistics query: " + e.getMessage());
+        }
+    }
+
     public static String getBook(String isbn) {
         String status = null; // Initialize title variable
 
