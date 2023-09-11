@@ -182,8 +182,9 @@ public class Borrowers {
                 String status = resultSet.getString("status");
                 int quantity = resultSet.getInt("quantity");
 
-                // Output ISBN, Status, and Quantity
+                System.out.println("---------------------------------------------------------------------");
                 System.out.println("ISBN: " + isbn + ", Status: " + status + ", Quantity: " + quantity);
+                System.out.println("---------------------------------------------------------------------");
             }
         } catch (SQLException e) {
             System.err.println("Error executing statistics query: " + e.getMessage());

@@ -252,10 +252,8 @@ public class Book {
 
     public static void updateBook(String isbn, String title, String authorName, String status, int quantity) {
         try (Connection connection = DataBase.dbSetup()) {
-            // Start a transaction
             connection.setAutoCommit(false);
 
-            // Update the book table
             String updateBookQuery = "UPDATE book SET title = ?, status = ?, quantity = ? WHERE isbn = ?";
             try (PreparedStatement bookStatement = connection.prepareStatement(updateBookQuery)) {
                 bookStatement.setString(1, title);
@@ -266,14 +264,12 @@ public class Book {
                 int rowsUpdated = bookStatement.executeUpdate();
 
                 if (rowsUpdated <= 0) {
-                    // If no rows were updated, rollback the transaction and return
                     connection.rollback();
                     System.out.println("No book with ISBN " + isbn + " found for update.");
                     return;
                 }
             }
 
-            // Update the author table
             String updateAuthorQuery = "UPDATE authors SET name = ? WHERE id = " +
                     "(SELECT author_id FROM book WHERE isbn = ?)";
             try (PreparedStatement authorStatement = connection.prepareStatement(updateAuthorQuery)) {
@@ -283,16 +279,26 @@ public class Book {
                 authorStatement.executeUpdate();
             }
 
+            String addNewInstances = "INSERT INTO bookinstance  (isbn, status) VALUES (?, ?)";
+            try (PreparedStatement newInstance = connection.prepareStatement(addNewInstances)) {
+                newInstance.setString(1, authorName);
+                newInstance.setString(2, isbn);
+                for (int i = 1; i <= quantity; i++) {
+                    newInstance.setString(1, isbn);
+                    newInstance.setString(2, status);
+                    newInstance.executeUpdate();
+                }
+
+
+                newInstance.executeUpdate();
+            }
+
             connection.commit();
             System.out.println("Book with ISBN " + isbn + " and its author updated successfully.");
         } catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
 
-          /*  try {
-                connection.rollback();
-            } catch (SQLException rollbackException) {
-                System.err.println("Rollback error: " + rollbackException.getMessage());
-            }*/
+
         }
     }
 
