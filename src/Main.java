@@ -5,6 +5,7 @@ import java.util.Scanner;
 import java.sql.*;
  import java.util.Random;
 
+
 public class Main {
 
     public static int generateRandomInteger(int min, int max) {
@@ -26,7 +27,7 @@ public class Main {
             System.out.println("5. Search book");
             System.out.println("6. Borrow a book");
             System.out.println("7. Return a book");
-            System.out.println("8: Repports");
+            System.out.println("8. Repports");
 
 
 
@@ -64,12 +65,15 @@ public class Main {
                     break;
                 case 7:
                     returnBook(scanner);
+                    break;
                 case 8:
                     Borrowers.statistics();
+                    Borrowers.plots();
+                    break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
-        } while (choice != 2);
+        } while (choice != 9);
 
         scanner.close();
     }
@@ -101,6 +105,7 @@ public class Main {
         //BookInstance copy = new BookInstance();
 
         book.add(quantity);
+
 
     }
 public static void deleteBookl(Scanner scanner) throws SQLException {
@@ -215,14 +220,35 @@ public static void searchBook(Scanner scanner) throws SQLException{
             System.out.print("Enter limit date (yyyy-MM-dd): ");
             String limitDateStr = scanner.nextLine();
             limitDate = sdf.parse(limitDateStr);
+            if (borrowDate.after(limitDate)) {
+                System.out.println("Borrow date cannot be after the limit date.");
+            } else {
+                System.out.println("Borrow date is valid.");
+
+                // If you have a return date, input it and check additional conditions
+                System.out.print("Enter return date (yyyy-MM-dd, leave empty if not applicable): ");
+                String returnDateStr = scanner.nextLine();
+
+                if (!returnDateStr.isEmpty()) {
+                    Date returnDate = sdf.parse(returnDateStr);
+
+                    if (returnDate.before(borrowDate)) {
+                        System.out.println("Return date cannot be before the borrow date.");
+                    } else if (returnDate.after(limitDate)) {
+                        System.out.println("Return date cannot be after the limit date.");
+                    } else {
+                        System.out.println("Return date is valid.");
+                    }
+                }
+            }
         } catch (ParseException e) {
             System.err.println("Invalid date format. Please enter dates in yyyy-MM-dd format.");
-            return; // Exit the method if date parsing fails
+            return; // exit the method if date parsing fails
         }
 
         try {
             Borrowers.borrowBook(isbn, name, contact, borrowDate, limitDate , member_number);
-            System.out.println("Book borrowed successfully!");
+           System.out.println("The operation number is "+ member_number + " Keep it safe ");
         } catch (SQLException e) {
             System.err.println("Database error: " + e.getMessage());
         }
@@ -253,12 +279,12 @@ public static void searchBook(Scanner scanner) throws SQLException{
             System.err.println("Invalid date format. Please enter dates in yyyy-MM-dd format.");
             return; // Exit the method if date parsing fails
         }
-
+/*
         try {
             System.out.println("Book borrowed successfully!");
         } catch (Exception e) {
             System.err.println("Database error: " + e.getMessage());
-        }
+        }*/
 
         Borrowers.returnBook(returnDate, isbn, borrower_number);
     }

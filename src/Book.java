@@ -23,7 +23,6 @@ public class Book {
         this.author_name = author;
         this.author_id = author_id;
     }
-    //I think this line isn't the correct way to describe this relationship , i'll consider another appr
 
 
 //getters
@@ -177,6 +176,8 @@ public class Book {
                 String isbn = result.getString("isbn");
                 String title = result.getString("title");
                 String status = result.getString("status");
+                //String author = result.getString("author");
+
                 int quantity = result.getInt("quantity");
 
                 System.out.println("ISBN: " + isbn);
@@ -229,7 +230,7 @@ public class Book {
 
     //searchByAuthor isn't complete yet
     public static void deleteBook(String isbn ) throws SQLException{
-        String check = "SELECT * FROM book WHERE isbn = (?)";
+        //String check = "SELECT * FROM book WHERE isbn = (?)";
         String DeleteQ = "DELETE FROM book WHERE isbn = (?)";
         try(Connection connection = DataBase.dbSetup();
             PreparedStatement preparedStatement = connection.prepareStatement(DeleteQ))

@@ -1,5 +1,9 @@
 import DB.DataBase;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -7,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.python.util.PythonInterpreter;
+
 
 public class Borrowers {
     private String member_number;
@@ -46,13 +52,13 @@ public class Borrowers {
                                     int instanceId = instancesResult.getInt("instance_id");
 
                                     // Step 3: Insert borrower information into the borrower table
-                                    String insertBorrowerQuery = "INSERT INTO borrowers (Member_number,name, contact_info) VALUES (?, ?, ?)";
+                                    //String insertBorrowerQuery = "INSERT INTO borrowers (Member_number,name, contact_info) VALUES (?, ?, ?)";
+                                    String insertBorrowerQuery = "INSERT IGNORE INTO borrowers (Member_number, name, contact_info) VALUES (?, ?, ?)";
+
                                     try (PreparedStatement borrowerStatement = connection.prepareStatement(insertBorrowerQuery)) {
                                         borrowerStatement.setInt(1, Member_number);
                                         borrowerStatement.setString(2, name);
                                         borrowerStatement.setString(3, contact);
-
-
                                         borrowerStatement.executeUpdate();
                                     }
 
@@ -190,6 +196,30 @@ public class Borrowers {
             System.err.println("Error executing statistics query: " + e.getMessage());
         }
     }
+    public static void plots(){
+
+        try {
+            String pythonScript = "C:\\Users\\Youcode\\Desktop\\ploting\\plot.py";
+
+            ProcessBuilder processBuilder = new ProcessBuilder("python", pythonScript);
+            Process process = processBuilder.start();
+
+            int exitCode = process.waitFor();
+
+            if (exitCode == 0) {
+                System.out.println("Python script executed successfully.");
+            } else {
+                System.err.println("Error executing Python script. Exit code: " + exitCode);
+            }
+
+        } catch (IOException | InterruptedException e) {
+            System.out.println(e);
+            e.printStackTrace();
+        }
+    }
+
+
+
 
     public static String getBook(String isbn) {
         String status = null; // Initialize title variable
